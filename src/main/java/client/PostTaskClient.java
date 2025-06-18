@@ -1,16 +1,15 @@
-package model.client;
+package client;
 
 import com.google.gson.Gson;
 import dtos.PostRequest;
 
-import java.io.BufferedReader;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
 public class PostTaskClient {
     public static void create() throws IOException {
@@ -24,8 +23,6 @@ public class PostTaskClient {
         conn.setRequestProperty("Accept", "application/json");
         conn.setDoOutput(true);
 
-
-
         Gson gson = new Gson();
         var postRequest = new PostRequest("Criada via PostTaskClient", "Testando POST", false, "média");
         String jsonInputString = gson.toJson(postRequest);
@@ -37,21 +34,10 @@ public class PostTaskClient {
         }
 
         System.out.println("POST /tasks => " + conn.getResponseCode());
-//
+
+        PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         String resposta = new String(conn.getInputStream().readAllBytes());
-
-        System.out.println("Resposta da API: " + resposta);
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
-            StringBuilder responseBuilder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                responseBuilder.append(line);
-            }
-            String resposta2 = responseBuilder.toString();
-            System.out.println("Resposta da API: " + resposta2);
-        }
-
+        out.println(resposta);
 
         conn.disconnect();
     }

@@ -8,7 +8,10 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TaskService {
-
+        public void clear() {
+            tasks.clear();
+            idCounter.set(0);
+        }
         List<Task> tasks = new ArrayList<>();
         AtomicInteger idCounter = new AtomicInteger(1); // para gerar IDs únicos
 

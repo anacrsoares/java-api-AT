@@ -1,46 +1,43 @@
 package utils;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 
 public class readPrettyResponseUtils {
     public static void readResponse(HttpURLConnection conn){
-        try{
-            // response
-            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        try {
+            BufferedReader in = new BufferedReader(
+            new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+            PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
-            String inputLine;
+            // Lê a resposta
             StringBuilder responseBody = new StringBuilder();
-
+            String inputLine;
             while ((inputLine = in.readLine()) != null) {
                 responseBody.append(inputLine).append("\n");
             }
 
-            // close resources
-            in.close();
-            conn.disconnect();
-
             // Parse com Gson
             Gson gson = new Gson();
-            JsonObject jsonObject = gson.fromJson(responseBody.toString(), JsonObject.class);
-            JsonArray entitiesArray = jsonObject.getAsJsonArray("entities");
+            JsonElement jsonElement = JsonParser.parseString(responseBody.toString());
 
             // pretty print
             Gson prettyGson = new GsonBuilder().setPrettyPrinting().create();
-            String prettyJson = prettyGson.toJson(entitiesArray);
+            String prettyJson = prettyGson.toJson(jsonElement);
 
-            System.out.println("Entidades:");
-            System.out.println(prettyJson);
+            out.println("Entidades:");
+            out.println(prettyJson);
 
         } catch (Exception e) {
             System.err.println("Erro ao acessar a API: " + e.getMessage());
             throw new RuntimeException(e);
+        } finally {
+            conn.disconnect();
         }
     }
 }
